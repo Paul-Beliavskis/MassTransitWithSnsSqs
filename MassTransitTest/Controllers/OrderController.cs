@@ -4,6 +4,7 @@ using MassTransit.AmazonSqsTransport;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OrderService.Controllers
@@ -26,13 +27,18 @@ namespace OrderService.Controllers
         [HttpPost]
         public async Task<string> CreateOrder()
         {
-            await _bus.Publish(new OrderCreatedEvent
+            var orderevent = new OrderCreatedEvent
             {
                 OrderId = Guid.NewGuid(),
                 OrderNumber = "1234568",
                 OrderTimestamp = DateTime.UtcNow
+            };
 
-            });
+            await _bus.Publish(orderevent, x =>
+                    {
+                        x.SetDeduplicationId(Guid.NewGuid().ToString());
+                        x.SetGroupId("Events");
+                    });
 
             return "Success";
         }
@@ -40,12 +46,23 @@ namespace OrderService.Controllers
         [HttpPut]
         public async Task<string> UpdateOrder()
         {
-            await _bus.Publish(new OrderUpdatedEvent
+            var tasks = new List<Task>();
+
+            for (int i = 0; i < 700; i++)
             {
-                OrderId = Guid.NewGuid(),
-                OrderNumber = "1234568",
-                OrderTimestamp = DateTime.UtcNow
-            }, x => x.SetGroupId("OrderUpdated"));
+                _bus.Publish(new OrderUpdatedEvent
+                {
+                    OrderId = Guid.NewGuid(),
+                    OrderNumber = "1234568",
+                    OrderTimestamp = DateTime.UtcNow
+                }, x =>
+                {
+                    x.SetDeduplicationId(Guid.NewGuid().ToString());
+                    x.SetGroupId("Events");
+                });
+            }
+
+            await Task.WhenAll(tasks);
 
             return "Success";
         }

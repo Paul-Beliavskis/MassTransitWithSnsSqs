@@ -16,17 +16,13 @@ namespace Mecca.Services.Common.Extentions
 
                     x.UsingAmazonSqs((context, cfg) =>
                     {
+
                         cfg.Host("ap-southeast-2", h =>
                         {
-                            h.AccessKey("");
-                            h.SecretKey("");
+
                         });
 
-
-                        cfg.PublishTopology.TopicAttributes.Add("ContentBasedDeduplication", "true");
-                        cfg.PublishTopology.TopicAttributes.Add("TopicFifo", "true");
                         cfg.MessageTopology.SetEntityNameFormatter(new TopicNameFormatter());
-
 
                         cfg.ConfigureEndpoints(context, new QueueNameFormatter(serviceName));
                     });
@@ -35,6 +31,7 @@ namespace Mecca.Services.Common.Extentions
                     {
                         if (cfg is IAmazonSqsReceiveEndpointConfigurator configurator)
                         {
+                            configurator.ConcurrentMessageLimit = 100;
                             configurator.QueueAttributes.Add("ContentBasedDeduplication", true);
                         }
                     });

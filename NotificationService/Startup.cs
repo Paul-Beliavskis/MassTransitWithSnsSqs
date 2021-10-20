@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 
 namespace NotificationService
 {
@@ -21,7 +20,6 @@ namespace NotificationService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMeccaConsumers("Notification");
-            Log.Debug("debugggggg");
 
             services.AddControllers();
         }

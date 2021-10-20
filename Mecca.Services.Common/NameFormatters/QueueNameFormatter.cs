@@ -36,7 +36,7 @@ namespace Mecca.Services.Common.NameFormatters
         {
             var consumerClassName = typeof(T).Name;
 
-            var consumerQueueName = $"{_servicename}{Regex.Replace(consumerClassName, "([A-Z])(?![A-Z])", "-$1")}.fifo".ToLower();
+            var consumerQueueName = $"{_servicename}{Regex.Replace(consumerClassName, "([A-Z])(?![A-Z])", "-$1")}".ToLower() + ".fifo";
 
             return consumerQueueName;
         }
